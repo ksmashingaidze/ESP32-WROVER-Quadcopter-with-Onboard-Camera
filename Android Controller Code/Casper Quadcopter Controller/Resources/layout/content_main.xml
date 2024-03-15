@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:id="@+id/content_main_layout"
+    android:layout_width="match_parent"
+    android:background="@color/colorBlack"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:showIn="@layout/activity_main">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="true"
+        android:textColor="@color/colorWhite"
+        android:layout_marginTop="100px"
+        android:id="@+id/textView_status"
+        android:text="@string/casper_status" />
+    <Button
+        android:text="@string/button_up"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cornerRadius="30dp"
+        android:layout_marginTop="100px"
+        android:backgroundTint="@color/colorGreen"
+        android:layout_below="@+id/button_rollb"
+        android:layout_centerInParent="true"
+        android:id="@+id/button_up" />
+    <Button
+        android:text="@string/button_down"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cornerRadius="30dp"
+        android:backgroundTint="@color/colorOrange"
+        android:layout_below="@+id/button_up"
+        android:layout_centerInParent="true"
+        android:id="@+id/button_down" />
+    <Button
+        android:text="@string/button_yawl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cornerRadius="30dp"
+        android:backgroundTint="@color/colorPink"
+        android:layout_below="@+id/button_down"
+        android:layout_centerInParent="true"
+        android:id="@+id/button_yawl" />
+    <Button
+        android:text="@string/button_yawr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cornerRadius="30dp"
+        android:backgroundTint="@color/colorPurple"
+        android:layout_below="@+id/button_yawl"
+        android:layout_centerInParent="true"
+        android:id="@+id/button_yawr" />
+    <Button
+        android:text="@string/button_capture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cornerRadius="30dp"
+        android:backgroundTint="@color/colorSalmon"
+        android:layout_below="@+id/button_yawr"
+        android:layout_centerInParent="true"
+        android:id="@+id/button_capture" />
+    <Button
+        android:text="@string/button_rollf"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cornerRadius="30dp"
+        android:layout_marginTop="100px"
+        android:backgroundTint="@color/colorBlue"
+        android:layout_below="@+id/textView_status"
+        android:layout_centerInParent="true"
+        android:id="@+id/button_rollf" />
+    <Button
+        android:text="@string/button_pitchr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cornerRadius="30dp"
+        android:backgroundTint="@color/colorBlue"
+        android:layout_below="@+id/button_rollf"
+        android:layout_toRightOf="@+id/button_rollf"
+        android:id="@+id/button_pitchr" />
+    <Button
+        android:text="@string/button_pitchl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cornerRadius="30dp"
+        android:backgroundTint="@color/colorBlue"
+        android:layout_below="@+id/button_rollf"
+        android:layout_toLeftOf="@+id/button_rollf"
+        android:id="@+id/button_pitchl" />
+    <Button
+        android:text="@string/button_rollb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cornerRadius="30dp"
+        android:backgroundTint="@color/colorBlue"
+        android:layout_below="@+id/button_pitchl"
+        android:layout_centerInParent="true"
+        android:id="@+id/button_rollb" />
+
+</RelativeLayout>
