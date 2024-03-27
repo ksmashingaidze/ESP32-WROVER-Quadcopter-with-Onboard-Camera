@@ -15,6 +15,7 @@ Completed
 - Developed an Android app interface in Microsoft Visual Studio
 - Established communication between ESP32-WROVER and Android app using HTTP (dummy HTTP.GET requests & responses)
 - Defined x4 PWM outputs to control the motors through the L293D motor drivers
+- Installed x2 CCW and x2 CW props on the quadcopter by attaching them to the motors with hot glue
 - Set all quadcopter motors to produce maximum lift (max 8-bit PWM value: 255) when "Up" is pressed, and minimum lift (min 8-bit PWM value: 0) when "Down" is pressed, in order to test lift-off capability. 
 
 To-Do
