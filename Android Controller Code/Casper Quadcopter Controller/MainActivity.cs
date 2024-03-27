@@ -38,13 +38,50 @@ namespace Casper_Quadcopter_Controller
             Button button_capture = FindViewById<Button>(Resource.Id.button_capture);
 
             // Initialize key variables
-            string casper_status = ""; //Define a string that is displayed on the app interface to monitor the status of the quadcopter
+            string my_url = "";        // Define a string that will store the url of the HTTP request to be sent
+            string casper_status = ""; // Define a string that is displayed on the app interface to monitor the status of the quadcopter
 
-            // When the "Up" button is pressed
-            button_up.Click += async delegate
+            // Resting state is hover. Enforce this
+            if (my_url != "http://192.168.4.1/hover")
             {
                 // Create a new HTTP request
-                var http_request = WebRequest.Create("http://192.168.4.1/up") as HttpWebRequest;
+                my_url = "http://192.168.4.1/hover";
+                var http_request = WebRequest.Create(my_url) as HttpWebRequest;
+                http_request.Method = "GET";
+                // Display the response from the ESP32 on the app interface
+                HttpWebResponse http_response = (HttpWebResponse)http_request.GetResponse();
+                // Check the HTTP response for validity
+                if (http_response.StatusCode == (HttpStatusCode)200)
+                {
+                    // All Good
+                    using (var stream_reader = new System.IO.StreamReader(http_response.GetResponseStream()))
+                    {
+                        casper_status = stream_reader.ReadToEnd();
+
+                    }
+                    textView_status.Text = casper_status;
+                }
+                else if (http_response.StatusCode == (HttpStatusCode)404)
+                {
+                    // Error 404
+                    textView_status.Text = "Error 404";
+                }
+                else
+                {
+                    // Other Error
+                    textView_status.Text = "Something strange is going on...";
+                }
+                http_response.Close();
+
+            }
+
+
+            // When the "Up" button is held
+            button_up.Touch += async delegate
+            {
+                // Create a new HTTP request
+                my_url = "http://192.168.4.1/up";
+                var http_request = WebRequest.Create(my_url) as HttpWebRequest;
                 http_request.Method = "GET";
                 // Display the response from the ESP32 on the app interface
                 HttpWebResponse http_response = (HttpWebResponse)http_request.GetResponse();
@@ -73,11 +110,12 @@ namespace Casper_Quadcopter_Controller
 
             };
 
-            // When the "Down" button is pressed
-            button_down.Click += async delegate
+            // When the "Down" button is held
+            button_down.Touch += async delegate
             {
                 // Create a new HTTP request
-                var http_request = WebRequest.Create("http://192.168.4.1/down") as HttpWebRequest;
+                my_url = "http://192.168.4.1/down";
+                var http_request = WebRequest.Create(my_url) as HttpWebRequest;
                 http_request.Method = "GET";
                 // Display the response from the ESP32 on the app interface
                 HttpWebResponse http_response = (HttpWebResponse)http_request.GetResponse();
@@ -106,11 +144,12 @@ namespace Casper_Quadcopter_Controller
 
             };
 
-            // When the "Yaw L" button is pressed
-            button_yawl.Click += async delegate
+            // When the "Yaw L" button is held
+            button_yawl.Touch += async delegate
             {
                 // Create a new HTTP request
-                var http_request = WebRequest.Create("http://192.168.4.1/yawl") as HttpWebRequest;
+                my_url = "http://192.168.4.1/yawl";
+                var http_request = WebRequest.Create(my_url) as HttpWebRequest;
                 http_request.Method = "GET";
                 // Display the response from the ESP32 on the app interface
                 HttpWebResponse http_response = (HttpWebResponse)http_request.GetResponse();
@@ -139,11 +178,12 @@ namespace Casper_Quadcopter_Controller
 
             };
 
-            // When the "Yaw R" button is pressed
-            button_yawr.Click += async delegate
+            // When the "Yaw R" button is held
+            button_yawr.Touch += async delegate
             {
                 // Create a new HTTP request
-                var http_request = WebRequest.Create("http://192.168.4.1/yawr") as HttpWebRequest;
+                my_url = "http://192.168.4.1/yawr";
+                var http_request = WebRequest.Create(my_url) as HttpWebRequest;
                 http_request.Method = "GET";
                 // Display the response from the ESP32 on the app interface
                 HttpWebResponse http_response = (HttpWebResponse)http_request.GetResponse();
@@ -172,11 +212,12 @@ namespace Casper_Quadcopter_Controller
 
             };
 
-            // When the "Roll F" button is pressed
-            button_rollf.Click += async delegate
+            // When the "Roll F" button is held
+            button_rollf.Touch += async delegate
             {
                 // Create a new HTTP request
-                var http_request = WebRequest.Create("http://192.168.4.1/rollf") as HttpWebRequest;
+                my_url = "http://192.168.4.1/rollf";
+                var http_request = WebRequest.Create(my_url) as HttpWebRequest;
                 http_request.Method = "GET";
                 // Display the response from the ESP32 on the app interface
                 HttpWebResponse http_response = (HttpWebResponse)http_request.GetResponse();
@@ -205,11 +246,12 @@ namespace Casper_Quadcopter_Controller
 
             };
 
-            // When the "Roll B" button is pressed
-            button_rollb.Click += async delegate
+            // When the "Roll B" button is held
+            button_rollb.Touch += async delegate
             {
                 // Create a new HTTP request
-                var http_request = WebRequest.Create("http://192.168.4.1/rollb") as HttpWebRequest;
+                my_url = "http://192.168.4.1/rollb";
+                var http_request = WebRequest.Create(my_url) as HttpWebRequest;
                 http_request.Method = "GET";
                 // Display the response from the ESP32 on the app interface
                 HttpWebResponse http_response = (HttpWebResponse)http_request.GetResponse();
@@ -238,11 +280,12 @@ namespace Casper_Quadcopter_Controller
 
             };
 
-            // When the "Pitch L" button is pressed
-            button_pitchl.Click += async delegate
+            // When the "Pitch L" button is held
+            button_pitchl.Touch += async delegate
             {
                 // Create a new HTTP request
-                var http_request = WebRequest.Create("http://192.168.4.1/pitchl") as HttpWebRequest;
+                my_url = "http://192.168.4.1/pitchl";
+                var http_request = WebRequest.Create(my_url) as HttpWebRequest;
                 http_request.Method = "GET";
                 // Display the response from the ESP32 on the app interface
                 HttpWebResponse http_response = (HttpWebResponse)http_request.GetResponse();
@@ -271,11 +314,12 @@ namespace Casper_Quadcopter_Controller
 
             };
 
-            // When the "Pitch R" button is pressed
-            button_pitchr.Click += async delegate
+            // When the "Pitch R" button is held
+            button_pitchr.Touch += async delegate
             {
                 // Create a new HTTP request
-                var http_request = WebRequest.Create("http://192.168.4.1/pitchr") as HttpWebRequest;
+                my_url = "http://192.168.4.1/pitchr";
+                var http_request = WebRequest.Create(my_url) as HttpWebRequest;
                 http_request.Method = "GET";
                 // Display the response from the ESP32 on the app interface
                 HttpWebResponse http_response = (HttpWebResponse)http_request.GetResponse();
@@ -304,11 +348,12 @@ namespace Casper_Quadcopter_Controller
 
             };
 
-            // When the "Capture" button is pressed
+            // When the "Capture" button is pressed once
             button_capture.Click += async delegate
             {
                 // Create a new HTTP request
-                var http_request = WebRequest.Create("http://192.168.4.1/capture") as HttpWebRequest;
+                my_url = "http://192.168.4.1/capture";
+                var http_request = WebRequest.Create(my_url) as HttpWebRequest;
                 http_request.Method = "GET";
                 // Display the response from the ESP32 on the app interface
                 HttpWebResponse http_response = (HttpWebResponse)http_request.GetResponse();
@@ -336,7 +381,6 @@ namespace Casper_Quadcopter_Controller
                 http_response.Close();
 
             };
-
 
         }
 
