@@ -1,8 +1,0 @@
-- 1 x Freenove ESP32-WROVER CAM MCU
-- 1 x Drone frame
-- 2 x CW quadcopter propellers
-- 2 x CCW quadcopter propellers
-- 1 x IMU (Inertial Measurement Unit)
-- 4 x L293D Motor Drivers
-- 4 x 1.2V AAA batteries
-
