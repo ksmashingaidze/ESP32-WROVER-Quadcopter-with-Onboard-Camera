@@ -57,12 +57,21 @@
         android:layout_centerInParent="true"
         android:id="@+id/button_yawr" />
     <Button
+        android:text="@string/button_stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cornerRadius="30dp"
+        android:backgroundTint="@color/colorRed"
+        android:layout_below="@+id/button_yawr"
+        android:layout_centerInParent="true"
+        android:id="@+id/button_stop" />
+    <Button
         android:text="@string/button_capture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:cornerRadius="30dp"
         android:backgroundTint="@color/colorSalmon"
-        android:layout_below="@+id/button_yawr"
+        android:layout_below="@+id/button_stop"
         android:layout_centerInParent="true"
         android:id="@+id/button_capture" />
     <Button
@@ -70,7 +79,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:cornerRadius="30dp"
-        android:layout_marginTop="100px"
+        android:layout_marginTop="50px"
         android:backgroundTint="@color/colorBlue"
         android:layout_below="@+id/textView_status"
         android:layout_centerInParent="true"

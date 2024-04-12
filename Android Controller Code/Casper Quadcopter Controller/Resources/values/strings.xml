@@ -10,5 +10,6 @@
 	<string name="button_rollb">Roll B</string>
 	<string name="button_pitchl">Pitch L</string>
 	<string name="button_pitchr">Pitch R</string>
+	<string name="button_stop">Stop</string>
 	<string name="button_capture">Capture</string>
 </resources>

@@ -8,7 +8,8 @@
 	<color name="colorPink">#f491ff</color>
 	<color name="colorPurple">#bf00ff</color>
 	<color name="colorBlue">#0091ff</color>
-	<color name="colorSalmon">#b31e00</color>
+	<color name="colorRed">#FF0000</color>
+	<color name="colorSalmon">#FA8072</color>
 	<color name="colorBlack">#000000</color>
 	<color name="colorWhite">#FFFFFF</color>
 </resources>
