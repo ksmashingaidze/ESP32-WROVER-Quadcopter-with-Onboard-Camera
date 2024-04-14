@@ -1,3 +1,6 @@
+#include <ESC.h>            // RC_ESC library by Eric Nantel
+#include <ESP32Servo.h>     // ESP32Servo library by Kevin Harrington
+
 #include <driver/dac.h>
 #include <Arduino_BuiltIn.h>
 #include <dummy.h>
@@ -15,20 +18,16 @@
 #include <AsyncTCP.h>
 
 // Define PWM pin names for GPIO pins 12, 14, 32, and 33 which will control the motor drivers for motors M1, M2, M3, and M4
-#define PWM_PIN_M1 12
-#define PWM_PIN_M2 14
+#define PWM_PIN_M1 14
+#define PWM_PIN_M2 27
 #define PWM_PIN_M3 32
 #define PWM_PIN_M4 33
-// Initialize PWM variables for GPIO pins 12, 14, 32, and 33
-int pwm_channel_0 = 0;     // Define PWM channel 0
-int pwm_channel_1 = 1;     // Define PWM channel 1
-int pwm_channel_2 = 2;     // Define PWM channel 2
-int pwm_channel_3 = 3;     // Define PWM channel 3
-int pwm_frequency = 1000;  // Define the PWM frequency
-int pwm_resolution = 8;    // Set the resolution of the pulse width to 8, resulting in 2^8=256 possible values
-
+// Initialize ESC variables
+ESC casper_esc_1(PWM_PIN_M1, 1000, 2200, 500);  // ESC(PIN, Min. Val., Max. Val., Arm Val.)
+ESC casper_esc_2(PWM_PIN_M2, 1000, 2200, 500);  // ESC(PIN, Min. Val., Max. Val., Arm Val.)
+ESC casper_esc_3(PWM_PIN_M3, 1000, 2200, 500);  // ESC(PIN, Min. Val., Max. Val., Arm Val.)
+ESC casper_esc_4(PWM_PIN_M4, 1000, 2200, 500);  // ESC(PIN, Min. Val., Max. Val., Arm Val.)
 // Initialize Wi-Fi connection variables
-int dac_out_value = 0;   // Initialize a variable to store the DAC output
 const char* casper_status = ""; //Initialize a variable to store the current state of the quadcopter. The states are: Up, Down, Yaw L, Yaw R, Roll F, Roll B, Pitch L, Pitch R, and Hover
 const char* wifi_ssid = "casper_ap";  // Define the ESP32 Wi-Fi SSID
 const char* wifi_password = "AnFnxNVf1";    // Define the ESP32 Wi-Fi password
@@ -38,20 +37,27 @@ int wifi_max_connections = 1;               // Define maximum number of devices 
 // Define an AsyncWebServer object, where the ESP32 will listen for requests on port 80
 AsyncWebServer casper_server(80);
 
+// Setup code, which runs once
 void setup() {
   // Setup serial port for debugging
   Serial.begin(115200);                     // Enable serial data transmission to communicate with the serial monitor
   delay(1000);                              // Wait for serial monitor to open, as same port we used to program the micro is the one tied to the serial monitor
 
-  // Configure GPIO pins 12, 14, 32, and 33 for PWM
-  ledcSetup(pwm_channel_0, pwm_frequency, pwm_resolution); // Setup PWM channel 0 with the defined frequency and resolution
-  ledcSetup(pwm_channel_1, pwm_frequency, pwm_resolution); // Setup PWM channel 1 with the defined frequency and resolution
-  ledcSetup(pwm_channel_2, pwm_frequency, pwm_resolution); // Setup PWM channel 2 with the defined frequency and resolution
-  ledcSetup(pwm_channel_3, pwm_frequency, pwm_resolution); // Setup PWM channel 3 with the defined frequency and resolution
-  ledcAttachPin(PWM_PIN_M1, pwm_channel_0);   // Assign PWM channel 0 to PWM_PIN_M1                    
-  ledcAttachPin(PWM_PIN_M2, pwm_channel_1);   // Assign PWM channel 1 to PWM_PIN_M2   
-  ledcAttachPin(PWM_PIN_M3, pwm_channel_2);   // Assign PWM channel 2 to PWM_PIN_M3     
-  ledcAttachPin(PWM_PIN_M4, pwm_channel_3);   // Assign PWM channel 3 to PWM_PIN_M4    
+  // Define modes for GPIO pins 12, 14, 32, and 33
+  pinMode(PWM_PIN_M1, OUTPUT);
+  pinMode(PWM_PIN_M2, OUTPUT);
+  pinMode(PWM_PIN_M3, OUTPUT);
+  pinMode(PWM_PIN_M4, OUTPUT);
+
+  // Arm ESCs
+  casper_esc_1.arm();  
+  delay(5000);
+  casper_esc_2.arm();
+  delay(5000);   
+  casper_esc_3.arm();
+  delay(5000);
+  casper_esc_4.arm();
+  delay(5000);
 
   // Configure ESP32 WROVER as a Wi-Fi access point
   WiFi.mode(WIFI_AP);
@@ -68,6 +74,14 @@ void setup() {
     casper_status = "Hover";
     request->send_P(200, "text/plain", casper_status);
     Serial.println(casper_status);
+    // If the quadcopter maintaining a hover state, all motors fire equally to hover
+    if (casper_status == "Hover"){
+      casper_esc_1.speed(1200);
+      casper_esc_2.speed(1200);
+      casper_esc_3.speed(1200);
+      casper_esc_4.speed(1200);
+
+    }
   });
   //
   // Up
@@ -77,10 +91,10 @@ void setup() {
     Serial.println(casper_status);
     // If the "UP" button is pressed on the Android app, all motors fire equally to rise
     if (casper_status == "Up"){
-      ledcWrite(pwm_channel_0, 255); // For 8 bit mode, output of PWM Channel 0 = (255/((2^8) - 1))*3.33 = 3.33 V
-      ledcWrite(pwm_channel_1, 255); // For 8 bit mode, output of PWM Channel 1 = (255/((2^8) - 1))*3.33 = 3.33 V
-      ledcWrite(pwm_channel_2, 255); // For 8 bit mode, output of PWM Channel 2 = (255/((2^8) - 1))*3.33 = 3.33 V
-      ledcWrite(pwm_channel_3, 255); // For 8 bit mode, output of PWM Channel 3 = (255/((2^8) - 1))*3.33 = 3.33 V
+      casper_esc_1.speed(1500);
+      casper_esc_2.speed(1500);
+      casper_esc_3.speed(1500);
+      casper_esc_4.speed(1500);
     }
   });
   //
@@ -91,10 +105,10 @@ void setup() {
     Serial.println(casper_status);
     // If the "DOWN" button is pressed on the Android app, all motors fire equally to descend
     if (casper_status == "Down"){
-      ledcWrite(pwm_channel_0, 100); // For 8 bit mode, output of PWM Channel 0 = (100/((2^8) - 1))*3.33 = 1.31 V
-      ledcWrite(pwm_channel_1, 100); // For 8 bit mode, output of PWM Channel 1 = (100/((2^8) - 1))*3.33 = 1.31 V
-      ledcWrite(pwm_channel_2, 100); // For 8 bit mode, output of PWM Channel 2 = (100/((2^8) - 1))*3.33 = 1.31 V
-      ledcWrite(pwm_channel_3, 100); // For 8 bit mode, output of PWM Channel 3 = (100/((2^8) - 1))*3.33 = 1.31 V
+      casper_esc_1.speed(500);
+      casper_esc_2.speed(500);
+      casper_esc_3.speed(500);
+      casper_esc_4.speed(500);
     }
   });
   //
@@ -140,6 +154,20 @@ void setup() {
     Serial.println(casper_status);
   });
   //
+  // Stop
+  casper_server.on("/stop", HTTP_GET, [](AsyncWebServerRequest *request) {
+    casper_status = "Stop";
+    request->send_P(200, "text/plain", casper_status);
+    Serial.println(casper_status);
+    // If the "STOP" button is pressed on the Android app, all motors abruptly stop for an emergency shutdown
+    if (casper_status == "Stop"){
+      casper_esc_1.speed(0);
+      casper_esc_2.speed(0);
+      casper_esc_3.speed(0);
+      casper_esc_4.speed(0);
+    }
+  });
+  //
   // Capture
   casper_server.on("/capture", HTTP_GET, [](AsyncWebServerRequest *request) {
     casper_status = "Capture";
@@ -153,8 +181,9 @@ void setup() {
   casper_server.begin();
 }
 
+// Main code, which runs infinitely
 void loop() {
-  // Main code which runs infinitely
+
   // Asynchronous server is activated above, so this loop is bypassed
 
 }

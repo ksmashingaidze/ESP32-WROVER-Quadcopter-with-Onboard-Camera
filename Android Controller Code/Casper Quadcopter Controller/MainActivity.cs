@@ -51,11 +51,11 @@ namespace Casper_Quadcopter_Controller
             //===========================================================================================================================
             // STARTUP
             //===========================================================================================================================
-            // Initial quadcopter state is hover. Enforce this
-            if (my_url != "http://192.168.4.1/hover")
+            // Initial quadcopter state is stop. Enforce this
+            if (my_url != "http://192.168.4.1/stop")
             {
                 // Create a new HTTP request
-                my_url = "http://192.168.4.1/hover";
+                my_url = "http://192.168.4.1/stop";
                 var http_request = WebRequest.Create(my_url) as HttpWebRequest;
                 http_request.Method = "GET";
                 // Display the response from the ESP32 on the app interface
