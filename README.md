@@ -1,5 +1,5 @@
 ESP32-WROVER Quadcopter with Onboard Camera (a.k.a. Casper)
-=============================================================================================================================
+==============================================================================================================================================================================
 
 App controlled quadcopter with onboard camera implemented using the Freenove ESP32-WROVER CAM Board.
 Included:
@@ -9,7 +9,7 @@ ESP32-WROVER MCU Code folder containing the MCU control embedded C code, written
 The user connects their Android device to the quadcopter's Wi-Fi access point in order to control the quadcopter using the Android app.
 
 Completed
------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 - Assembled quadcopter frame and installed x4 A2212 KV2200 brushless motors, and x4 30A ESCs
 - Setup ESP32-WROVER in Wi-Fi AP mode and configured a dedicated server using Arduino IDE
 - Developed an Android app interface in Microsoft Visual Studio
@@ -18,10 +18,12 @@ Completed
 - Installed x2 CCW and x2 CW props on the quadcopter
 - Added "Stop" button to Android app to implement an abrupt emergency shutdown of the quadcopter. Quadcopter is in "Stop" state at startup
 - Added functionality to enforce hover state on release of Android app buttons
+- Changed line 16 of RC_ESC -> src -> ESC.h from "#include Servo.h" to "#include ESP32Servo.h"
+- Included "ESC.h" (from "RC_ESC" library by Eric Nantel) and "ESP32Servo.h" (from "ESP32Servo" library by Kevin Harrington) at the beginning of the main casper.ino file
 - Ran preliminary test to check motor functionality and app<->MCU responsiveness
 
 To-Do
------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 - Troubleshoot ESC3 (electronic speed controller attached to motor M3) to isolate fault
 - Tune DAC outputs against quadcopter weight to **add basic flight and hover functionality**
 - Interface IMU (gyroscope rotational data & barometer altitude information) with ESP32-WROVER
