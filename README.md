@@ -20,8 +20,9 @@ Completed
 - Added functionality to enforce hover state on release of Android app buttons
 - Changed line 16 of RC_ESC -> src -> ESC.h from "#include Servo.h" to "#include ESP32Servo.h"
 - Included "ESC.h" (from "RC_ESC" library by Eric Nantel) and "ESP32Servo.h" (from "ESP32Servo" library by Kevin Harrington) at the beginning of the main casper.ino file
-- Ran preliminary test to check motor functionality and app<->MCU responsiveness
 - Replaced faulty ESC3 (electronic speed controller attached to motor M3)
+- Ran preliminary tests to check motor functionality, lift, and app<->MCU responsiveness
+- Replaced broken prop (damaged in flight test) and opposing/mirroring prop with placeholders 
 
 To-Do
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
