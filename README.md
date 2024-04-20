@@ -30,6 +30,7 @@ To-Do
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 - Replace electronic speed controller ESC 2 (burned) and motor M2 (broken connector) combination. Cheaper to buy as a set, rather than sourcing replacement connectors, etc.
+- Source uniform props
 - Tune DAC outputs against quadcopter weight to **add basic flight and hover functionality**
 - **Interface IMU** (gyroscope rotational data & barometer altitude information) with ESP32-WROVER
 - Use IMU barometer/gyroscope data to **complete flight controller with vertical/rotational constraints and improved flight functionality**
