@@ -22,11 +22,14 @@ Completed
 - Included "ESC.h" (from "RC_ESC" library by Eric Nantel) and "ESP32Servo.h" (from "ESP32Servo" library by Kevin Harrington) at the beginning of the main casper.ino file
 - Replaced faulty ESC3 (electronic speed controller attached to motor M3)
 - Ran preliminary tests to check motor functionality, lift, and app<->MCU responsiveness
-- Replaced broken prop (damaged in flight test) and opposing/mirroring prop with placeholders 
+- Replaced broken prop (damaged in flight test) and opposing/mirroring prop with placeholders
+- **Achieved vertical take-off**
+- Adjusted motor thrusts, mindful of susceptibility of ESCs to blowing up when overdriven for long periods
 
 To-Do
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+- Replace electronic speed controller ESC 2 (burned) and motor M2 (broken connector) combination. Cheaper to buy as a set, rather than sourcing replacement connectors, etc.
 - Tune DAC outputs against quadcopter weight to **add basic flight and hover functionality**
 - **Interface IMU** (gyroscope rotational data & barometer altitude information) with ESP32-WROVER
 - Use IMU barometer/gyroscope data to **complete flight controller with vertical/rotational constraints and improved flight functionality**
