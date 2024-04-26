@@ -23,15 +23,14 @@ Completed
 - Replaced faulty ESC3 (electronic speed controller attached to motor M3)
 - Ran preliminary tests to check motor functionality, lift, and app<->MCU responsiveness
 - Replaced broken prop (damaged in flight test) and opposing/mirroring prop with placeholders
+- Tuned DAC outputs against quadcopter weight to **add basic flight and hover functionality**
 - **Achieved vertical take-off**
 - Adjusted motor thrusts, mindful of susceptibility of ESCs to blowing up when overdriven for long periods
+- Replaced electronic speed controller ESC 1 (burned) and motor M2 (broken connector) combination. Cheaper to buy as a set, rather than sourcing replacement connectors, etc.
+- Sourced uniform props
 
 To-Do
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-- Replace electronic speed controller ESC 1 (burned) and motor M2 (broken connector) combination. Cheaper to buy as a set, rather than sourcing replacement connectors, etc.
-- Source uniform props
-- Tune DAC outputs against quadcopter weight to **add basic flight and hover functionality**
 - **Interface IMU** (gyroscope rotational data & barometer altitude information) with ESP32-WROVER
 - Use IMU barometer/gyroscope data to **complete flight controller with vertical/rotational constraints and improved flight functionality**
 - **Allow capture of a still image** using the ESP32-WROVER camera when the "Capture" button is pressed on the Android app
