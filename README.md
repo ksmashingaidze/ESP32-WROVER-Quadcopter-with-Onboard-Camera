@@ -30,9 +30,9 @@ Completed
 - Adjusted motor thrusts, mindful of susceptibility of ESCs to blowing up when overdriven for long periods
 - Replaced electronic speed controller ESC 1 (burned) and motor M2 (broken connector) combination. Cheaper to buy as a set, rather than sourcing replacement connectors, etc.
 - Sourced uniform props
+- **Interfaced IMU** (gyroscope rotational data & barometer altitude information) with ESP32-WROVER
 
 To-Do
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-- **Interface IMU** (gyroscope rotational data & barometer altitude information) with ESP32-WROVER
 - Use IMU barometer/gyroscope data to **complete flight controller with vertical/rotational constraints and improved flight functionality**
 - **Allow capture of a still image** using the ESP32-WROVER camera when the "Capture" button is pressed on the Android app
