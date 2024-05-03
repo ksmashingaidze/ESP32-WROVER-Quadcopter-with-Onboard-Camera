@@ -34,5 +34,5 @@ Completed
 
 To-Do
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-- Use IMU barometer/gyroscope data to **complete flight controller with vertical/rotational constraints and improved flight functionality**
+- Use IMU barometer/gyroscope data to **complete flight controller with rotational constraints and improved flight functionality**
 - **Allow capture of a still image** using the ESP32-WROVER camera when the "Capture" button is pressed on the Android app
