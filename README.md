@@ -10,6 +10,9 @@ The user connects their Android device to the quadcopter's Wi-Fi access point in
 
 **IMPORTANT NOTE:** Drone pilots in Canada must adhere to the rules stated in the CARs (Canadian Aviation Regulations), and must be in possession of a valid drone pilot certificate (basic or advanced operations, depending on the context) to operate drones in excess of 250g that are marked and registered. A SFOC (Special Flight Operations Certificate) is required, in addition to the drone pilot certificate, in special cases (i.e. foreign pilot, exceeding 400 ft. AGL, etc.). A drone pilot certificate and drone registration is not required for drones that do not exceed 250g, and indoor/outdoor RPAS (remotely piloted aircraft systems) activities are exempt from the CARs. Please refer to the Transport Canada website (https://tc.canada.ca) for a comprehensive list of regulations and guidelines.
 
+**Net Mass With Landing Gear:** 746g
+**Net Mass Without Landing Gear:** 639g
+
 Completed
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 - Assembled quadcopter frame and installed x4 A2212 KV2200 brushless motors, and x4 30A ESCs
