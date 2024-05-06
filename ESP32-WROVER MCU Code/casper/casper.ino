@@ -1,6 +1,16 @@
+// Include ESC and motor libraries
 #include <ESC.h>            // RC_ESC library by Eric Nantel
 #include <ESP32Servo.h>     // ESP32Servo library by Kevin Harrington
-
+// Include Adafruit gyroscope/accelerometer and barometer libraries
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BusIO_Register.h>
+#include <Adafruit_I2CDevice.h>
+#include <Adafruit_I2CRegister.h>
+#include <Adafruit_SPIDevice.h>
+#include <Adafruit_BMP085.h>
+#include <Adafruit_MPU6050.h>
+#include <Wire.h>           // Facilitates communication with I2C devices
+// Include Wi-Fi libraries
 #include <driver/dac.h>
 #include <Arduino_BuiltIn.h>
 #include <dummy.h>
@@ -17,6 +27,12 @@
 #include <ESPAsyncWebSrv.h>
 #include <AsyncTCP.h>
 
+// Define I2C pins
+#define SDA_PIN 21
+#define SCL_PIN 22
+// Declare sensor objects to interface with I2C
+Adafruit_BMP085 bmp;   // Declare a new BMP085 object
+Adafruit_MPU6050 mpu;  // Declare a new MPU6050 object
 // Define PWM pin names for GPIO pins 12, 14, 32, and 33 which will control the motor drivers for motors M1, M2, M3, and M4
 #define PWM_PIN_M1 14
 #define PWM_PIN_M2 27
@@ -27,6 +43,12 @@ ESC casper_esc_1(PWM_PIN_M1, 1000, 2200, 500);  // ESC(PIN, Min. Val., Max. Val.
 ESC casper_esc_2(PWM_PIN_M2, 1000, 2200, 500);  // ESC(PIN, Min. Val., Max. Val., Arm Val.)
 ESC casper_esc_3(PWM_PIN_M3, 1000, 2200, 500);  // ESC(PIN, Min. Val., Max. Val., Arm Val.)
 ESC casper_esc_4(PWM_PIN_M4, 1000, 2200, 500);  // ESC(PIN, Min. Val., Max. Val., Arm Val.)
+// Initialize current motor speed variable
+int curr_speed = 0;
+// Initialize motor thresholds
+int down_threshold = 1700;
+int hover_threshold = 1750;
+int up_threshold = 1800;
 // Initialize Wi-Fi connection variables
 const char* casper_status = ""; //Initialize a variable to store the current state of the quadcopter. The states are: Up, Down, Yaw L, Yaw R, Roll F, Roll B, Pitch L, Pitch R, and Hover
 const char* wifi_ssid = "casper_ap";  // Define the ESP32 Wi-Fi SSID
@@ -42,6 +64,32 @@ void setup() {
   // Setup serial port for debugging
   Serial.begin(115200);                     // Enable serial data transmission to communicate with the serial monitor
   delay(1000);                              // Wait for serial monitor to open, as same port we used to program the micro is the one tied to the serial monitor
+
+  // Check whether the BMP180 barometer works
+  // If not, display an error message then hang in an infinite loop
+  if (!bmp.begin()){
+    Serial.println("No BMP180 atmospheric barometer detected.");
+    while(1){
+       //Infinite loop
+    }
+  }
+  Serial.println("BMP180 Detected Successfully.");
+
+  // Check whether the MPU6050 gyroscope/accelerometer works
+  // If not, display an error message then hang in an infinite loop
+  if (!mpu.begin()){
+    Serial.println("No MPU6050 accelerometer/gyroscope detected.");
+    while(1){
+      // Infinite loop
+    }
+  }
+  Serial.println("MPU6050 Detected Successfully.");
+
+  // Define MPU6050 accelerometer/gyroscope parameters
+  mpu.setAccelerometerRange(MPU6050_RANGE_16_G);
+  mpu.setGyroRange(MPU6050_RANGE_500_DEG);
+  mpu.setFilterBandwidth(MPU6050_BAND_184_HZ);
+  delay(1000);
 
   // Define modes for GPIO pins 12, 14, 32, and 33
   pinMode(PWM_PIN_M1, OUTPUT);
@@ -76,10 +124,27 @@ void setup() {
     Serial.println(casper_status);
     // If the quadcopter maintaining a hover state, all motors fire equally to hover
     if (casper_status == "Hover"){
-      casper_esc_1.speed(1200);
-      casper_esc_2.speed(1200);
-      casper_esc_3.speed(1200);
-      casper_esc_4.speed(1200);
+      // Ramp the motor speed up more gradually to avoid wearing out ESC components
+      while (curr_speed < hover_threshold){
+        curr_speed += 1;
+        casper_esc_1.speed(curr_speed);
+        casper_esc_2.speed(curr_speed);
+        casper_esc_3.speed(curr_speed);
+        casper_esc_4.speed(curr_speed);
+      }
+      // Ramp the motor speed down more gradually to avoid wearing out ESC components
+      while (curr_speed > hover_threshold){
+        curr_speed -= 1;
+        casper_esc_1.speed(curr_speed);
+        casper_esc_2.speed(curr_speed);
+        casper_esc_3.speed(curr_speed);
+        casper_esc_4.speed(curr_speed);
+      }
+      // Maintain the setpoint motor speed
+      casper_esc_1.speed(curr_speed);
+      casper_esc_2.speed(curr_speed);
+      casper_esc_3.speed(curr_speed);
+      casper_esc_4.speed(curr_speed);
 
     }
   });
@@ -91,10 +156,28 @@ void setup() {
     Serial.println(casper_status);
     // If the "UP" button is pressed on the Android app, all motors fire equally to rise
     if (casper_status == "Up"){
-      casper_esc_1.speed(1500);
-      casper_esc_2.speed(1500);
-      casper_esc_3.speed(1500);
-      casper_esc_4.speed(1500);
+      // Ramp the motor speed up more gradually to avoid wearing out ESC components
+      while (curr_speed < up_threshold){
+        curr_speed += 1;
+        casper_esc_1.speed(curr_speed);
+        casper_esc_2.speed(curr_speed);
+        casper_esc_3.speed(curr_speed);
+        casper_esc_4.speed(curr_speed);
+      }
+      // Ramp the motor speed down more gradually to avoid wearing out ESC components
+      while (curr_speed > up_threshold){
+        curr_speed -= 1;
+        casper_esc_1.speed(curr_speed);
+        casper_esc_2.speed(curr_speed);
+        casper_esc_3.speed(curr_speed);
+        casper_esc_4.speed(curr_speed);
+      }
+      // Maintain the setpoint motor speed
+      casper_esc_1.speed(curr_speed);
+      casper_esc_2.speed(curr_speed);
+      casper_esc_3.speed(curr_speed);
+      casper_esc_4.speed(curr_speed);
+
     }
   });
   //
@@ -105,10 +188,28 @@ void setup() {
     Serial.println(casper_status);
     // If the "DOWN" button is pressed on the Android app, all motors fire equally to descend
     if (casper_status == "Down"){
-      casper_esc_1.speed(500);
-      casper_esc_2.speed(500);
-      casper_esc_3.speed(500);
-      casper_esc_4.speed(500);
+      // Ramp the motor speed up more gradually to avoid wearing out ESC components
+      while (curr_speed < down_threshold){
+        curr_speed += 1;
+        casper_esc_1.speed(curr_speed);
+        casper_esc_2.speed(curr_speed);
+        casper_esc_3.speed(curr_speed);
+        casper_esc_4.speed(curr_speed);
+      }
+      // Ramp the motor speed down more gradually to avoid wearing out ESC components
+      while (curr_speed > down_threshold){
+        curr_speed -= 1;
+        casper_esc_1.speed(curr_speed);
+        casper_esc_2.speed(curr_speed);
+        casper_esc_3.speed(curr_speed);
+        casper_esc_4.speed(curr_speed);
+      }
+      // Maintain the setpoint motor speed
+      casper_esc_1.speed(curr_speed);
+      casper_esc_2.speed(curr_speed);
+      casper_esc_3.speed(curr_speed);
+      casper_esc_4.speed(curr_speed);
+      
     }
   });
   //
@@ -161,10 +262,11 @@ void setup() {
     Serial.println(casper_status);
     // If the "STOP" button is pressed on the Android app, all motors abruptly stop for an emergency shutdown
     if (casper_status == "Stop"){
-      casper_esc_1.speed(0);
-      casper_esc_2.speed(0);
-      casper_esc_3.speed(0);
-      casper_esc_4.speed(0);
+      curr_speed = 0;
+      casper_esc_1.speed(curr_speed);
+      casper_esc_2.speed(curr_speed);
+      casper_esc_3.speed(curr_speed);
+      casper_esc_4.speed(curr_speed);
     }
   });
   //
@@ -179,6 +281,7 @@ void setup() {
 
   // Start the server on the ESP32 WROVER
   casper_server.begin();
+  Serial.println("Casper is now ready to connect.");
 }
 
 // Main code, which runs infinitely
