@@ -4,19 +4,17 @@ ESP32-WROVER Quadcopter with Onboard Camera (a.k.a. Casper)
 App controlled quadcopter with onboard camera implemented using the Freenove ESP32-WROVER CAM Board.
 Included:
 Android Controller Code folder containing the quadcopter remote Android app C# code, written in MS Visual Studio.
-ESP32-WROVER MCU Code folder containing the MCU control embedded C code, written in Arduino IDE.
+ESP32-WROVER MCU Code folder containing the MCU control embedded C code, written in Arduino IDE (Espressif "esp32" core library v.2.0.10)
 
 The user connects their Android device to the quadcopter's Wi-Fi access point in order to control the quadcopter using the Android app.
 
 **IMPORTANT NOTE:** Drone pilots in Canada must adhere to the rules stated in the CARs (Canadian Aviation Regulations), and must be in possession of a valid drone pilot certificate (basic or advanced operations, depending on the context) to operate drones in excess of 250g that are marked and registered. A SFOC (Special Flight Operations Certificate) is required, in addition to the drone pilot certificate, in special cases (i.e. foreign pilot, exceeding 400 ft. AGL, etc.). A drone pilot certificate and drone registration is not required for drones that do not exceed 250g, and indoor/outdoor RPAS (remotely piloted aircraft systems) activities are exempt from the CARs. Please refer to the Transport Canada website (https://tc.canada.ca) for a comprehensive list of regulations and guidelines.
 
-**Net Mass With Landing Gear:** 746g
-
-**Net Mass Without Landing Gear:** 639g
+**Net Mass With Landing Gear:** 848g
 
 Completed
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-- Assembled quadcopter frame and installed x4 A2212 KV2200 brushless motors, and x4 30A ESCs
+- Assembled quadcopter frame and installed an MCU (ESP32-WROVER CAM board), a LiPo Battery (11.1V, 1700mAh, 120C, 3S), an accelerometer/gyroscope (MPU6050), a barometric pressure sensor for altitude (BMP180), x4 brushless DC motors (A2212 KV2200), and x4 ESCs (30A)
 - Setup ESP32-WROVER in Wi-Fi AP mode and configured a dedicated server using Arduino IDE
 - Developed an Android app interface in Microsoft Visual Studio
 - Established communication between ESP32-WROVER and Android app using HTTP (HTTP.GET requests & responses)
