@@ -43,12 +43,33 @@ ESC casper_esc_1(PWM_PIN_M1, 1000, 2200, 500);  // ESC(PIN, Min. Val., Max. Val.
 ESC casper_esc_2(PWM_PIN_M2, 1000, 2200, 500);  // ESC(PIN, Min. Val., Max. Val., Arm Val.)
 ESC casper_esc_3(PWM_PIN_M3, 1000, 2200, 500);  // ESC(PIN, Min. Val., Max. Val., Arm Val.)
 ESC casper_esc_4(PWM_PIN_M4, 1000, 2200, 500);  // ESC(PIN, Min. Val., Max. Val., Arm Val.)
-// Initialize current motor speed variable
-int curr_speed = 0;
+// Initialize current motor speed variables
+int m1_speed = 0;
+int m2_speed = 0;
+int m3_speed = 0;
+int m4_speed = 0;
 // Initialize motor thresholds
-int down_threshold = 1700;
-int hover_threshold = 1750;
-int up_threshold = 1800;
+int down_threshold = 1200;        
+int hover_threshold = 1250;
+int up_threshold = 1300;
+// Initialize PID control variables
+double level_setpoint = 0;
+double tilt_setpoint = 15;
+double dt = 4.17*pow(10,-9);
+double e_roll = 0;
+double e_roll_old = 0;  
+double e_roll_i = 0;
+double e_roll_d = 0;
+double e_pitch = 0; 
+double e_pitch_old = 0;
+double e_pitch_i = 0;
+double e_pitch_d = 0;
+double kp_roll = 1;
+double kp_pitch = 1;
+double ki_roll = 1;
+double ki_pitch = 1;
+double kd_roll = 1;
+double kd_pitch = 1;
 // Initialize Wi-Fi connection variables
 const char* casper_status = ""; //Initialize a variable to store the current state of the quadcopter. The states are: Up, Down, Yaw L, Yaw R, Roll F, Roll B, Pitch L, Pitch R, and Hover
 const char* wifi_ssid = "casper_ap";  // Define the ESP32 Wi-Fi SSID
@@ -124,28 +145,11 @@ void setup() {
     Serial.println(casper_status);
     // If the quadcopter maintaining a hover state, all motors fire equally to hover
     if (casper_status == "Hover"){
-      // Ramp the motor speed up more gradually to avoid wearing out ESC components
-      while (curr_speed < hover_threshold){
-        curr_speed += 1;
-        casper_esc_1.speed(curr_speed);
-        casper_esc_2.speed(curr_speed);
-        casper_esc_3.speed(curr_speed);
-        casper_esc_4.speed(curr_speed);
-      }
-      // Ramp the motor speed down more gradually to avoid wearing out ESC components
-      while (curr_speed > hover_threshold){
-        curr_speed -= 1;
-        casper_esc_1.speed(curr_speed);
-        casper_esc_2.speed(curr_speed);
-        casper_esc_3.speed(curr_speed);
-        casper_esc_4.speed(curr_speed);
-      }
-      // Maintain the setpoint motor speed
-      casper_esc_1.speed(curr_speed);
-      casper_esc_2.speed(curr_speed);
-      casper_esc_3.speed(curr_speed);
-      casper_esc_4.speed(curr_speed);
-
+      // Assign the "Hover" setpoint motor speed
+      m1_speed = hover_threshold;
+      m2_speed = hover_threshold;
+      m3_speed = hover_threshold;
+      m4_speed = hover_threshold;
     }
   });
   //
@@ -156,28 +160,11 @@ void setup() {
     Serial.println(casper_status);
     // If the "UP" button is pressed on the Android app, all motors fire equally to rise
     if (casper_status == "Up"){
-      // Ramp the motor speed up more gradually to avoid wearing out ESC components
-      while (curr_speed < up_threshold){
-        curr_speed += 1;
-        casper_esc_1.speed(curr_speed);
-        casper_esc_2.speed(curr_speed);
-        casper_esc_3.speed(curr_speed);
-        casper_esc_4.speed(curr_speed);
-      }
-      // Ramp the motor speed down more gradually to avoid wearing out ESC components
-      while (curr_speed > up_threshold){
-        curr_speed -= 1;
-        casper_esc_1.speed(curr_speed);
-        casper_esc_2.speed(curr_speed);
-        casper_esc_3.speed(curr_speed);
-        casper_esc_4.speed(curr_speed);
-      }
-      // Maintain the setpoint motor speed
-      casper_esc_1.speed(curr_speed);
-      casper_esc_2.speed(curr_speed);
-      casper_esc_3.speed(curr_speed);
-      casper_esc_4.speed(curr_speed);
-
+      // Assign the "Up" setpoint motor speed
+      m1_speed = up_threshold;
+      m2_speed = up_threshold;
+      m3_speed = up_threshold;
+      m4_speed = up_threshold;
     }
   });
   //
@@ -188,28 +175,11 @@ void setup() {
     Serial.println(casper_status);
     // If the "DOWN" button is pressed on the Android app, all motors fire equally to descend
     if (casper_status == "Down"){
-      // Ramp the motor speed up more gradually to avoid wearing out ESC components
-      while (curr_speed < down_threshold){
-        curr_speed += 1;
-        casper_esc_1.speed(curr_speed);
-        casper_esc_2.speed(curr_speed);
-        casper_esc_3.speed(curr_speed);
-        casper_esc_4.speed(curr_speed);
-      }
-      // Ramp the motor speed down more gradually to avoid wearing out ESC components
-      while (curr_speed > down_threshold){
-        curr_speed -= 1;
-        casper_esc_1.speed(curr_speed);
-        casper_esc_2.speed(curr_speed);
-        casper_esc_3.speed(curr_speed);
-        casper_esc_4.speed(curr_speed);
-      }
-      // Maintain the setpoint motor speed
-      casper_esc_1.speed(curr_speed);
-      casper_esc_2.speed(curr_speed);
-      casper_esc_3.speed(curr_speed);
-      casper_esc_4.speed(curr_speed);
-      
+      // Assign the "Down" setpoint motor speed
+      m1_speed = down_threshold;
+      m2_speed = down_threshold;
+      m3_speed = down_threshold;
+      m4_speed = down_threshold;
     }
   });
   //
@@ -218,6 +188,14 @@ void setup() {
     casper_status = "Yaw L";
     request->send_P(200, "text/plain", casper_status);
     Serial.println(casper_status);
+    // If the "YAW L" button is pressed on the Android app, motors M2 & M3 fire equally faster to yaw left
+    if (casper_status == "Yaw L"){
+      // Assign the "Yaw L" setpoint motor speed
+      m1_speed = hover_threshold;
+      m2_speed = up_threshold;
+      m3_speed = up_threshold;
+      m4_speed = hover_threshold;
+    }
   });
   //
   // Yaw R
@@ -225,6 +203,14 @@ void setup() {
     casper_status = "Yaw R";
     request->send_P(200, "text/plain", casper_status);
     Serial.println(casper_status);
+    // If the "YAW R" button is pressed on the Android app, motors M1 & M4 fire equally faster to yaw right
+    if (casper_status == "Yaw L"){
+      // Assign the "Yaw L" setpoint motor speed
+      m1_speed = up_threshold;
+      m2_speed = hover_threshold;
+      m3_speed = hover_threshold;
+      m4_speed = up_threshold;
+    }
   });
   //
   // Roll F
@@ -262,11 +248,10 @@ void setup() {
     Serial.println(casper_status);
     // If the "STOP" button is pressed on the Android app, all motors abruptly stop for an emergency shutdown
     if (casper_status == "Stop"){
-      curr_speed = 0;
-      casper_esc_1.speed(curr_speed);
-      casper_esc_2.speed(curr_speed);
-      casper_esc_3.speed(curr_speed);
-      casper_esc_4.speed(curr_speed);
+      m1_speed = 0;
+      m2_speed = 0;
+      m3_speed = 0;
+      m4_speed = 0;
     }
   });
   //
@@ -286,9 +271,157 @@ void setup() {
 
 // Main code, which runs infinitely
 void loop() {
+  delay(500);                   //Introduce a delay to protect the ESCs 
+  // Set all motor speeds
+  casper_esc_1.speed(m1_speed);
+  casper_esc_2.speed(m2_speed);
+  casper_esc_3.speed(m3_speed);
+  casper_esc_4.speed(m4_speed);
 
-  // Asynchronous server is activated above, so this loop is bypassed
+  // IMPLEMENT PID CONTROL  
+  // HOVER, UP, DOWN, YAW L, YAW R STATES
+  // Ensure the quadcopter is level 
+  if ((casper_status == "Hover") | (casper_status == "Up") | (casper_status == "Down") | (casper_status == "Yaw L") | (casper_status == "Yaw R")){
+    // Get initial readings for error
+    e_roll = level_setpoint - read_roll();
+    e_pitch = level_setpoint - read_pitch();
+    // To maintain level roll, motors M1 & M2 compensate
+    if (e_roll != 0){
+      e_roll_i += e_roll*dt;                // Update the integral error
+      e_roll_d += (e_roll - e_roll_old)/dt; // Update the derivative error
+      m1_speed = m1_speed + int((kp_roll*e_roll) + (ki_roll*e_roll_i) + (kd_roll*e_roll_d));
+      m2_speed = m2_speed + int((kp_roll*e_roll) + (ki_roll*e_roll_i) + (kd_roll*e_roll_d));
+    }
+    // To maintain level pitch, motors M1 & M3 compensate
+    if (e_pitch != 0){
+      e_pitch_i += e_pitch*dt;                // Update the integral error
+      e_pitch_d += (e_pitch - e_pitch_old)/dt; // Update the derivative error
+      m1_speed = m1_speed + int((kp_pitch*e_pitch) + (ki_pitch*e_pitch_i) + (kd_pitch*e_pitch_d));
+      m3_speed = m3_speed + int((kp_pitch*e_pitch) + (ki_pitch*e_pitch_i) + (kd_pitch*e_pitch_d));
+    }
+  }
+  // ROLL F STATE
+  else if (casper_status == "Roll F"){
+    // Get initial readings for error
+    e_roll = tilt_setpoint - read_roll();
+    e_pitch = level_setpoint - read_pitch();
+    // To roll forwards, motors M1 & M2 compensate
+    if (e_roll != 0){
+      e_roll_i += e_roll*dt;                // Update the integral error
+      e_roll_d += (e_roll - e_roll_old)/dt; // Update the derivative error
+      m1_speed = m1_speed + int((kp_roll*e_roll) + (ki_roll*e_roll_i) + (kd_roll*e_roll_d));
+      m2_speed = m2_speed + int((kp_roll*e_roll) + (ki_roll*e_roll_i) + (kd_roll*e_roll_d));
+    }
+    // To maintain level pitch, motors M1 & M3 compensate
+    if (e_pitch != 0){
+      e_pitch_i += e_pitch*dt;                // Update the integral error
+      e_pitch_d += (e_pitch - e_pitch_old)/dt; // Update the derivative error
+      m1_speed = m1_speed + int((kp_pitch*e_pitch) + (ki_pitch*e_pitch_i) + (kd_pitch*e_pitch_d));
+      m3_speed = m3_speed + int((kp_pitch*e_pitch) + (ki_pitch*e_pitch_i) + (kd_pitch*e_pitch_d));
+    }
+  }
+  // ROLL B STATE
+  else if (casper_status == "Roll B"){
+    // Get initial readings for error
+    e_roll = tilt_setpoint - (-read_roll());
+    e_pitch = level_setpoint - read_pitch();
+    // To roll backwards, motors M3 & M4 compensate
+    if (e_roll != 0){
+      e_roll_i += e_roll*dt;                // Update the integral error
+      e_roll_d += (e_roll - e_roll_old)/dt; // Update the derivative error
+      m3_speed = m3_speed + int((kp_roll*e_roll) + (ki_roll*e_roll_i) + (kd_roll*e_roll_d));
+      m4_speed = m4_speed + int((kp_roll*e_roll) + (ki_roll*e_roll_i) + (kd_roll*e_roll_d));
+    }
+    // To maintain level pitch, motors M1 & M3 compensate
+    if (e_pitch != 0){
+      e_pitch_i += e_pitch*dt;                // Update the integral error
+      e_pitch_d += (e_pitch - e_pitch_old)/dt; // Update the derivative error
+      m1_speed = m1_speed + int((kp_pitch*e_pitch) + (ki_pitch*e_pitch_i) + (kd_pitch*e_pitch_d));
+      m3_speed = m3_speed + int((kp_pitch*e_pitch) + (ki_pitch*e_pitch_i) + (kd_pitch*e_pitch_d));
+    } 
+  }
+  // PITCH L STATE
+  else if (casper_status == "Pitch L"){
+    // Get initial readings for error
+    e_roll = level_setpoint - read_roll();
+    e_pitch = tilt_setpoint - read_pitch();
+    // To maintain level roll, motors M1 & M2 compensate
+    if (e_roll != 0){
+      e_roll_i += e_roll*dt;                // Update the integral error
+      e_roll_d += (e_roll - e_roll_old)/dt; // Update the derivative error
+      m1_speed = m1_speed + int((kp_roll*e_roll) + (ki_roll*e_roll_i) + (kd_roll*e_roll_d));
+      m2_speed = m2_speed + int((kp_roll*e_roll) + (ki_roll*e_roll_i) + (kd_roll*e_roll_d));
+    }
+    // To pitch left, motors M1 & M3 compensate
+    if (e_pitch != 0){
+      e_pitch_i += e_pitch*dt;                // Update the integral error
+      e_pitch_d += (e_pitch - e_pitch_old)/dt; // Update the derivative error
+      m1_speed = m1_speed + int((kp_pitch*e_pitch) + (ki_pitch*e_pitch_i) + (kd_pitch*e_pitch_d));
+      m3_speed = m3_speed + int((kp_pitch*e_pitch) + (ki_pitch*e_pitch_i) + (kd_pitch*e_pitch_d));
+    } 
+  }
+  // PITCH R STATE
+  else if (casper_status == "Pitch R"){
+    // Get initial readings for error
+    e_roll = level_setpoint - read_roll();
+    e_pitch = tilt_setpoint - (-read_pitch());
+    // To maintain level roll, motors M1 & M2 compensate
+    if (e_roll != 0){
+      e_roll_i += e_roll*dt;                // Update the integral error
+      e_roll_d += (e_roll - e_roll_old)/dt; // Update the derivative error
+      m1_speed = m1_speed + int((kp_roll*e_roll) + (ki_roll*e_roll_i) + (kd_roll*e_roll_d));
+      m2_speed = m2_speed + int((kp_roll*e_roll) + (ki_roll*e_roll_i) + (kd_roll*e_roll_d));
+    }
+    // To pitch right, motors M2 & M4 compensate
+    if (e_pitch != 0){
+      e_pitch_i += e_pitch*dt;                // Update the integral error
+      e_pitch_d += (e_pitch - e_pitch_old)/dt; // Update the derivative error
+      m2_speed = m2_speed + int((kp_pitch*e_pitch) + (ki_pitch*e_pitch_i) + (kd_pitch*e_pitch_d));
+      m4_speed = m4_speed + int((kp_pitch*e_pitch) + (ki_pitch*e_pitch_i) + (kd_pitch*e_pitch_d));
+    } 
+  }
+    
+  e_roll_old = e_roll;
+  e_pitch_old = e_pitch;
 
+}
+
+// Declare function to read roll data from accelerometer/gyroscope
+double read_roll(){
+  // Get and update MPU6050 sensor events with the latest readings
+  sensors_event_t my_acc_event, my_gyro_event, my_temp_event;
+  mpu.getEvent(&my_acc_event, &my_gyro_event, &my_temp_event);
+  // Read angular velocity from MPU6050 sensor
+  double gyro_x = my_gyro_event.gyro.x;
+  double gyro_y = my_gyro_event.gyro.y;
+  double gyro_z = my_gyro_event.gyro.z;
+  // Read acceleration from MPU6050 sensor
+  double acc_x = my_acc_event.acceleration.x;
+  double acc_y = my_acc_event.acceleration.y;
+  double acc_z = my_acc_event.acceleration.z;
+  // Calculate roll angle using accelerometer data
+  double roll_angle = atan(acc_y/sqrt((acc_x*acc_x)+(acc_z*acc_z)))*(180/M_PI);
+  // Return the roll angle
+  return(roll_angle);
+}
+
+// Declare function to read pitch data from accelerometer/gyroscope
+double read_pitch(){
+  // Get and update MPU6050 sensor events with the latest readings
+  sensors_event_t my_acc_event, my_gyro_event, my_temp_event;
+  mpu.getEvent(&my_acc_event, &my_gyro_event, &my_temp_event);
+  // Read angular velocity from MPU6050 sensor
+  double gyro_x = my_gyro_event.gyro.x;
+  double gyro_y = my_gyro_event.gyro.y;
+  double gyro_z = my_gyro_event.gyro.z;
+  // Read acceleration from MPU6050 sensor
+  double acc_x = my_acc_event.acceleration.x;
+  double acc_y = my_acc_event.acceleration.y;
+  double acc_z = my_acc_event.acceleration.z;
+  // Calculate pitch angle using accelerometer data
+  double pitch_angle = -atan(acc_x/sqrt((acc_y*acc_y)+(acc_z*acc_z)))*(180/M_PI);
+  // Return the pitch angle
+  return(pitch_angle);
 }
 
 // REFERENCE NOTES
